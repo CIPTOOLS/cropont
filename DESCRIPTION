@@ -1,0 +1,11 @@
+Type: Package
+Title: Cropontology web connector 
+Version: 0.1.0
+Date: 2014-10-08
+Copyright: International Potato Center
+Author: Reinhard Simon
+Maintainer: Reinhard Simon <R.SIMON@CGIAR.ORG>
+Description: 
+License: MIT
+Depends:
+    R (>= 3.1.0)
