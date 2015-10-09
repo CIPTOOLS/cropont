@@ -45,9 +45,9 @@ new_dictionary_table <- function(crop){
 get_dictionary_table <- function(crop){
   fns <- fbglobal::fname_dictionary(crop)
   
-  if(!file.exists(fns)) {
+  if (!file.exists(fns)) {
     base_dir <-  dirname(fns)
-    if(!file.exists(base_dir)) dir.create(base_dir)
+    if (!file.exists(base_dir)) dir.create(base_dir)
     table_dictionary <- new_dictionary_table(crop)
     save(table_dictionary, file = fns)
   }
