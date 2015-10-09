@@ -48,11 +48,11 @@ get_dictionary_table <- function(crop){
   if(!file.exists(fns)) {
     base_dir <-  dirname(fns)
     if(!file.exists(base_dir)) dir.create(base_dir)
-    table_sites <- new_dictionary_table(crop)
-    save(table_sites, file = fns)
+    table_dictionary <- new_dictionary_table(crop)
+    save(table_dictionary, file = fns)
   }
   load(fns)
-  table_sites
+  table_dictionary
 }
 
 #' Posts a dictionary table locally.
