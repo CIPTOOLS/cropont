@@ -10,4 +10,8 @@ License: GPL-3
 Depends:
     R (>= 3.2.2)
 Suggests:
-    fbglobal
+    fbglobal,
+    fbcrops,
+    rhandsontable,
+    shiny,
+    shinydashboard
