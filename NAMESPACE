@@ -2,4 +2,7 @@
 
 export(get_dictionary_table)
 export(new_dictionary_table)
-export(post_site_table)
+export(post_dictionary_table)
+export(server_dictionary)
+export(ui_dictionary)
+export(ui_dictionary_params)

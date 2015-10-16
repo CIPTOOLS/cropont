@@ -8,28 +8,62 @@
 #' @return dataframe
 new_dictionary_table <- function(crop){
   n = 3
-  id <- 1:n
-  shortn <- paste("ID_",id)
-  altern <- rep("", n)
-  fulln <-  rep("", n)
-  local <-  rep("", n)
-  latd <-  rep(0, n)
-  lond <- rep(0, n)
-  elev <-  rep(0, n)
-  crops <-  rep("", n)
-  aez <-  rep("", n)
-  cont<-  rep("", n)
-  creg<-  rep("", n)
-  cntry<-  rep("", n)
-  adm4<-  rep("", n)
-  adm3<-  rep("", n)
-  adm2<-  rep("", n)
-  adm1<-  rep("", n)
-  comment<-  rep("", n)
+  trait_id = 1:n               
+  trait = rep("", n)
+  entity = rep("", n)
+  attribute = rep("", n)
+  trait_synonyms = rep("", n)
+  trait_abbreviation = rep("", n)
+  trait_description = rep("", n)
+  trait_class = rep("", n)
+  trait_status = rep("", n)          
+  trait_xref = rep("", n)
+  method_id = rep("", n)
+  method = rep("", n)
+  method_description = rep("", n)
+  formula = rep("", n)
+  method_class = rep("", n)
+  method_reference = rep("", n)
+  scale_id = rep("", n)
+  scale_name = rep("", n)
+  scale_class = rep("", n)
+  decimal_places = rep("", n)
+  lower_limit = rep("", n)
+  upper_limit = rep("", n)
+  scale_xref = rep("", n)
+  category_0 = rep("", n)
+  category_1 = rep("", n)
+  category_2 = rep("", n)
+  category_3 = rep("", n)
+  category_4 = rep("", n)
+  category_5 = rep("", n)
+  category_6 = rep("", n)
+  category_7 = rep("", n)
+  category_8 = rep("", n)
+  category_9 = rep("", n)
+  category_10 = rep("", n)
+  variable_id = rep("", n)
+  variable_name = rep("", n)
+  variable_synonyms = rep("", n)
+  context_of_use = rep("", n)
+  growth_stage = rep("", n)
+  variable_status = rep("", n)
+  variable_xref = rep("", n)
+  scientist = rep("", n)
+  institution = rep("", n)
+  language_of_submission = rep("", n)
+  date_of_submission = rep("", n)
+  crop = rep(crop, n)
   
   res <- as.data.frame(cbind(
-    id, shortn, altern, fulln, local, latd, lond, elev, crops, aez,
-    cont, creg, cntry, adm4, adm3, adm2, adm1,  comment),
+    trait_id, trait, entity, attribute, trait_synonyms, trait_abbreviation, trait_description,
+    trait_class, trait_status, trait_xref, method_id, method, method_description, formula,
+    method_class, method_reference, scale_id, scale_name, scale_class, decimal_places,
+    lower_limit, upper_limit, scale_xref, category_0, category_1, category_2, category_3,
+    category_4, category_5, category_6, category_7, category_8, category_9, category_10,
+    variable_id, variable_name, variable_synonyms, context_of_use, growth_stage, variable_status,
+    variable_xref, scientist, institution, language_of_submission, date_of_submission, crop  
+    ),
     stringsAsFactors = FALSE)
   res
 }
@@ -44,15 +78,15 @@ new_dictionary_table <- function(crop){
 #' @return dataframe
 get_dictionary_table <- function(crop){
   fns <- fbglobal::fname_dictionary(crop)
-  
+  #print(fns)
+  if (is.null(fns)) return(NULL)
   if (!file.exists(fns)) {
     base_dir <-  dirname(fns)
-    if (!file.exists(base_dir)) dir.create(base_dir)
+    if (!dir.exists(base_dir)) dir.create(base_dir, recursive = TRUE)
     table_dictionary <- new_dictionary_table(crop)
-    save(table_dictionary, file = fns)
+    saveRDS(table_dictionary, file = fns)
   }
-  load(fns)
-  table_dictionary
+  readRDS(fns)
 }
 
 #' Posts a dictionary table locally.
@@ -63,7 +97,7 @@ get_dictionary_table <- function(crop){
 #' @param table_dictionary data.frame
 #' @author Reinhard Simon
 #' @export
-post_site_table <- function(crop, table_dictionary){
-  save(table_dictionary, file = fbglobal::fname_sites(crop))
+post_dictionary_table <- function(crop, table_dictionary){
+  saveRDS(table_dictionary, file = fbglobal::fname_dictionary(crop))
 }
 
