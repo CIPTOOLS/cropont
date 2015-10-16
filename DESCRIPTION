@@ -7,11 +7,13 @@ Author: Reinhard Simon
 Maintainer: Reinhard Simon <R.SIMON@CGIAR.ORG>
 Description: Cropontology support tools.
 License: GPL-3
-Depends:
+Depends: 
     R (>= 3.2.2)
-Suggests:
+Suggests: 
     fbglobal,
     fbcrops,
     rhandsontable,
     shiny,
-    shinydashboard
+    shinydashboard,
+    testthat,
+    RSelenium
