@@ -1,5 +1,5 @@
 Package: cropont
-Title: Cropontology Support Tools 
+Title: Cropontology Support Tools
 Version: 0.1.0
 Date: 2014-10-08
 Copyright: International Potato Center
@@ -7,13 +7,17 @@ Author: Reinhard Simon
 Maintainer: Reinhard Simon <R.SIMON@CGIAR.ORG>
 Description: Cropontology support tools.
 License: GPL-3
-Depends: 
+Depends:
     R (>= 3.2.2)
-Suggests: 
+Suggests:
     fbglobal,
     fbcrops,
     rhandsontable,
     shiny,
     shinydashboard,
     testthat,
-    RSelenium
+    RSelenium,
+    readxl,
+    stringr,
+    magrittr
+RoxygenNote: 5.0.0

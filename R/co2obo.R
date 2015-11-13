@@ -1,10 +1,13 @@
+library(magrittr)
+new_prefix = "SPBTO"
+
 write_header1 <- function(meta, file_out){
   write("format-version: 1.2", file = file_out, append = FALSE) # 1st! to start a new file
-  adate = "26:10:2015 12:00"
+  adate = "03:11:2015 12:00"
   write(paste("date:", adate), file = file_out, append = TRUE)
   write(paste("saved-by:", Sys.getenv("USERNAME")), file = file_out, append = TRUE)
   write("auto-generated-by: cropont 0.0.1", file = file_out, append = TRUE)
-  write(paste("default-namespace:", names(meta)[2], "\n"), file = file_out, append = TRUE) # last line
+  write(paste("default-namespace: Sweetpotato"), file = file_out, append = TRUE) # last line
 }
 
 add_point_to_text <- function(def){
@@ -42,11 +45,13 @@ add_xref_to_text <- function(def, xref){
   out
 }
 
-write_term_line <- function(line, file_out){
+write_term_line <- function(line, file_out, new_prefix = 'SPBTO'){
   if(is.na(line)) return(line)
   if(is.null(line)) return(line)
-  if(nchar(line) == "") return("")
+  if(nchar(line) == 0) return("")
+  if(line =="") return("")
   txt = ""
+
   if(stringr::str_detect(names(line), "def")) {
     #line = add_point_to_def(line)
     txt = paste0("def: ", line)
@@ -56,6 +61,7 @@ write_term_line <- function(line, file_out){
       if(stringr::str_detect(line, ", ")){
         line = stringr::str_split(line, ", ")[[1]]
       }
+      
       txt = paste0("synonym: \"", line, "\" EXACT []")
       if(length(txt) > 1) txt = paste(txt, collapse="\n")
     }
@@ -64,6 +70,7 @@ write_term_line <- function(line, file_out){
     if(nchar(line) > 0){
       if(stringr::str_detect(line, "; ")){
         line = stringr::str_split(line, "; ")[[1]]
+        line = line[line!=""]
       }
       txt = paste0("relationship: ", line)
       if(length(txt) > 1) txt = paste(txt, collapse="\n")
@@ -75,11 +82,15 @@ write_term_line <- function(line, file_out){
       txt = paste0("is_a: ", line)
   }
   }else 
-  txt = paste0(names(line),": ", line)
+  
   #print(paste(line, txt))
+    txt = paste0(names(line),": ", line)
   if(!(stringr::str_detect(txt, "NULL")
        || stringr::str_detect(txt, "NA")
-       || nchar(txt) == 0))   write(txt , file = file_out, append = TRUE)
+       || nchar(txt) == 0)) {
+    
+    write(txt , file = file_out, append = TRUE)
+  }  
 }
 
 get_is_a_name <- function(id, id_col, name_col, terms){
@@ -208,6 +219,60 @@ write_scale_cat <- function(scales, file_out){
   }
 }
 
+get_term_formula <- function(s){
+  trms <- stringr::str_extract_all(s, "[a-zA-Z_\\.]{2,20}[:]{2}[a-zA-Z_\\.]{2,20}")[[1]]
+  trms[!duplicated(trms)]
+}
+
+
+get_terms <- function(s){
+  trms <- stringr::str_extract_all(s, "[a-zA-Z]{1}[a-zA-Z-_0-9\\.]{2,20}")[[1]]
+  trms[!duplicated(trms)]
+}
+
+get_rels_of_var_formula <- function(temp){
+  get_variable_rel <- function(v, temp){
+    if(v == "" | is.na(v)) return("")
+    x = character(nrow(temp))
+    for(j in 1:nrow(temp)){
+      #x = ""
+      cmp = temp$`Variable synonyms`[j] %>% stringr::str_trim(side = "both")
+      if(stringr::str_detect(cmp, ",")){
+        cmp = stringr::str_split(cmp, ", ")[[1]]
+      }
+      if(v %in% cmp){
+        p = paste0("derives_from ", temp[j, "Variable ID"]," ! ", temp[j, "Variable name"],
+                   " (", temp[j, "Variable synonyms"], ")")
+      } else {
+        p = ""
+      }
+      x[j] = p
+    }
+    # print(x)
+    x = x[x != ""]
+    x
+  }
+  grvf <- function(rec, temp){
+    if(temp$Formula[rec] == "" | is.na(temp$Formula[rec])) return("")
+    trms <- get_terms(temp$Formula[rec])[-1]
+    n = length(trms)
+    x = character(n)
+    for(i in 1:n){
+      w <- get_variable_rel(trms[i],  temp )  
+      if(length(w)!=0) x[i] = w
+    }
+    # print(x)
+    #x <- x[x!=""]
+    x = paste(x, collapse = "; ")
+    x
+  }
+  out = character(nrow(temp))
+  for(i in 1:nrow(temp)){
+    out[i] = grvf(i, temp)
+  }
+  out
+}
+
 co2obo <- function(file_in, file_out = paste0(file_in,"x.obo")){
   #print(file_out)
   stopifnot(file.exists(file_in))
@@ -270,9 +335,9 @@ co2obo <- function(file_in, file_out = paste0(file_in,"x.obo")){
   methd$def <- methd$def %>%  add_point_to_text %>% add_quotes_to_text
   methd$def <- add_xref_to_text(methd$def, methd$xref)
 
-  comment = add_cols_to_comments(methd[, c("Formula")])
-  methd$Formula <- as.character(comment)
-  names(methd)[ncol(methd)-1] = "comment"
+  #comment = add_cols_to_comments(methd[, c("Formula")])
+  #methd$Formula <- as.character(comment)
+  #names(methd)[ncol(methd)-1] = "comment"
   
   write_term(methd, file_out, type = "Term")
   
@@ -310,7 +375,8 @@ co2obo <- function(file_in, file_out = paste0(file_in,"x.obo")){
   # Variables
   ## TODO discuss: Variable def == Trait ?
   vars <- onto[!duplicated(onto$`Variable ID`),
-               c("Variable ID", "Variable name", "Trait", "Variable synonyms", "Variable Xref",
+               c("Variable ID", "Variable label", "Trait", "Variable synonyms", "Variable Xref",
+                 "Variable name", 
                  "Context of use", "Growth stage", "Variable status", "CV Term ID",
                  "Scientist", "Institution", "Language of submission", "Date of submission",
                  "Trait ID", 
@@ -319,6 +385,9 @@ co2obo <- function(file_in, file_out = paste0(file_in,"x.obo")){
   names(vars)[1:5] = c("id", "name", "def", "synonyms", "xref")
   vars$def = add_point_to_text(vars$def) %>% add_quotes_to_text
   vars$def = add_xref_to_text(vars$def, vars$xref)
+  for(i in 1:nrow(vars)){
+    vars$synonyms[i] = paste0(vars$synonyms[i], ", ", vars$'Variable name'[i])
+  }
 
   temp = vars
   temp$xref = get_rels_of_ids("id", "Trait ID", "def", temp, rel_type = "variable_of" )
@@ -326,8 +395,9 @@ co2obo <- function(file_in, file_out = paste0(file_in,"x.obo")){
   temp$`Method class` <- get_rels_of_ids("id", "Method ID", "Method", temp, rel_type = "variable_of" )
   temp$`Scale name` = paste0(temp$`Scale class`,": ", temp$`Scale name` )
   temp$`Scale class` <- get_rels_of_ids("id", "Scale ID", "Scale name", temp, rel_type = "variable_of" )
+  tmp <- get_rels_of_var_formula(onto) 
   for(i in 1:nrow(vars)){
-    vars$xref[i] = paste(c(temp$xref[i], temp$`Method class`[i], temp$`Scale class`[i]), collapse = "; ")
+    vars$xref[i] = paste(c(temp$xref[i], temp$`Method class`[i], temp$`Scale class`[i], tmp[i]), collapse = "; ")
   }
   names(vars)[5] = "relationship"
   temp = NULL
@@ -351,6 +421,6 @@ co2obo <- function(file_in, file_out = paste0(file_in,"x.obo")){
   
 }
 
-file_in = "D:/apps/obo/ontology_cip_2015_10_26_short.xlsx"
+#file_in = "D:/projects/ibp-sweetpotato-traits/ontology_cip_2015_10_26_short.xlsx"
 
-co2obo(file_in)
+#co2obo(file_in)

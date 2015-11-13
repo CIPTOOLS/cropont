@@ -1,3 +1,15 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^tests
+todo*
+Copia*
+^\.txt$
+^\.csv$
+^\.xlsx$
+meta.csv
+valid_accs.txt
+work_list.txt
+work_list_variables.txt
+R/apply_formula.R
+R/co2obo.R
+R/summarize_sasha.R
