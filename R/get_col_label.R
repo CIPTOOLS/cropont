@@ -5,8 +5,8 @@ get_col_label_by <- function(abbreviation, lookup_column,  tbl){
   paste(lbl, collapse = "|")
 }
 
-file_in = "D:/projects/ibp-sweetpotato-traits/ontology_cip_2015_10_26_short.xlsx"
-
-onto = readxl::read_excel(file_in, 2)
-
-get_col_label_by( "WED1", "Synonym Grueneberg2010",  onto)
+# file_in = "D:/projects/ibp-sweetpotato-traits/ontology_cip_2015_10_26_short.xlsx"
+# 
+# onto = readxl::read_excel(file_in, 2)
+# 
+# get_col_label_by( "WED1", "Synonym Grueneberg2010",  onto)
